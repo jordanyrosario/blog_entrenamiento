@@ -1,0 +1,47 @@
+version: "3.7"
+services:
+
+    php:
+        build: docker/php
+        ports:
+            - "8080:80"
+            - "9005:9003"
+        extra_hosts:
+            host.docker.internal: host-gateway
+      
+        environment:
+            PHP_IDE_CONFIG: serverName=
+        volumes:
+            - .:/var/www/blog/
+        networks:
+            blog:
+                aliases:
+                    - blog.local
+
+    mysql:
+        build:
+            context: docker/mysql
+        ports:
+            - "3307:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_USER: blog
+            MYSQL_PASSWORD: blog
+            MYSQL_DATABASE: blog
+        networks:
+            blog:
+                aliases:
+                    - mysql.blog.local
+    mailhog:
+        image: mailhog/mailhog
+        container_name: 'mailhog'
+        ports:
+            - "1025:1025"
+            - "8025:8025"
+        networks:
+            blog:
+                aliases:
+                    - mail.blog.local
+networks:
+    blog:
+        driver: "bridge"
